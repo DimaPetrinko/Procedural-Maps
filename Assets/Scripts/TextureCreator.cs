@@ -5,10 +5,17 @@ public class TextureCreator : MonoBehaviour
 {
     [Range(2, 512)]
     public int resolution = 256;
+    public float frequency = 1f;
+    [Range(1, 8)]
+    public int octaves = 1;
+    [Range(1f, 4f)]
+    public float lacunarity = 2f;
+    [Range(0f, 1f)]
+    public float persistence = 0.5f;
     [Range(1, 3)]
     public int dimensions = 3;
     public NoiseMethodType type;
-    public float frequency = 1f;
+    public Gradient coloring;
 
     private Texture2D texture;
 
@@ -57,12 +64,12 @@ public class TextureCreator : MonoBehaviour
             for (int x = 0; x < resolution; x++)
             {
                 Vector3 point = Vector3.Lerp(point0, point1, (x + 0.5f) * step);
-                float sample = method(point, frequency);
+                float sample = Noise.Sum(method, point, frequency, octaves, lacunarity, persistence);
                 if (type != NoiseMethodType.Value)
                 {
                     sample = sample * 0.5f + 0.5f;
                 }
-                texture.SetPixel(x, y, Color.white * sample);
+                texture.SetPixel(x, y, coloring.Evaluate(sample));
             }
         }
         texture.Apply();
